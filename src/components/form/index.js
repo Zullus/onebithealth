@@ -1,5 +1,13 @@
 import React, {useState} from "react"
-import {View, Text, TextInput, TouchableOpacity} from "react-native"
+import {
+    View, 
+    Text, 
+    TextInput, 
+    TouchableOpacity,
+    Vibration,
+    Pressable,
+    Keyboard
+} from "react-native"
 import ResultImc from "./resultimc/index";
 
 import styles from "./style";
@@ -11,11 +19,26 @@ export default function Form(){
     const [messageImc, setMessageImc] = useState("Preencha o Peso e a Altura")
     const [imc, setImc] = useState(null)
     const [textButton, setTextButton] = useState("Calcular")
+    const [errorMessage, setErrorMessage] = useState(null)
 
     function imcCalculator(){
 
-        return setImc((weight/(height*height)).toFixed(2))
+        let heightFormat = height.replace(",", ".")
 
+        let weightFormat = weight.replace(",", ".")
+
+        return setImc((weightFormat/(heightFormat*heightFormat)).toFixed(2))
+
+    }
+
+    function verificationImc(){
+
+        if(imc == null){
+
+            Vibration.vibrate();
+            
+            setErrorMessage ("campo obrigatório*")
+        }
     }
 
     function validatonImc(){
@@ -27,22 +50,26 @@ export default function Form(){
             setWeight(null)
             setMessageImc("Seu IMC é igual:")
             setTextButton("Calcular Novamente")
+            setErrorMessage(null)
             return
         }
-
+        verificationImc()
         setImc(null)
         setTextButton("Calcular")
         setMessageImc("Preencha o Peso e a Altura")
 
     }
 
-
-
     return(
-        <View style={styles.formContext}>
+        <Pressable 
+            onPress={Keyboard.dismiss} 
+            style={styles.formContext}
+        >
 
-            <View style={styles.formContext}>
+            <View style={styles.form}>
                 <Text style={styles.formLabel}>Altura</Text>
+
+                <Text style={styles.errorMessage}>{errorMessage}</Text>
                 
                 <TextInput
                     onChangeText={setHeight}
@@ -53,6 +80,8 @@ export default function Form(){
                 />
                 
                 <Text style={styles.formLabel}>Peso</Text>
+
+                <Text style={styles.errorMessage}>{errorMessage}</Text>
                 
                 <TextInput
                     onChangeText={setWeight}
@@ -77,6 +106,6 @@ export default function Form(){
 
             </View>
 
-        </View>
+        </Pressable>
     );
 }
